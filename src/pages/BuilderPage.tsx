@@ -114,7 +114,7 @@ export const BuilderPage: React.FC = () => {
     setTemplateSet(true);
     const { prompts, uiPrompts } = response.data;
     console.log(
-      "⚡ responses recieved from template end point now moving to chat"
+      "⚡ responses received from template endpoint now moving to chat"
     );
     setSteps(
       parseXml(uiPrompts[0]).map((x: Step) => ({
@@ -124,7 +124,7 @@ export const BuilderPage: React.FC = () => {
     );
     setLoading(true);
 
-    console.log("😭  calling chat end point");
+    console.log("😭  calling chat endpoint");
     const stepsResponse = await axios.post(`${BACKEND_URL}/chat`, {
       messages: [...prompts, prompt].map((part) => ({
         role: "user",
@@ -135,41 +135,23 @@ export const BuilderPage: React.FC = () => {
         ],
       })),
     });
-    setLoading(false)
-    console.log("✅ stepsResponse chat : ", stepsResponse.data);
+    setLoading(false);
+    console.log("✅ stepsResponse chat: ", stepsResponse.data);
 
-    
+    // Process the stepsResponse to update the steps and files
+    const newSteps = stepsResponse.data.steps.map((step: Step) => ({
+      ...step,
+      status: "pending",
+    }));
+    setSteps(newSteps);
+
+    // Update files based on the response
+    const newFiles = stepsResponse.data.files;
+    setFiles(newFiles);
+
+    // Automatically switch to the preview tab
+    setActiveTab("preview");
   }
-
-  // const filess: FileStructure[] = [
-  //   {
-  //     name: "src",
-  //     type: "directory",
-  //     children: [
-  //       { name: "App.tsx", type: "file", content: 'console.log("Hello")' },
-  //       { name: "index.css", type: "file", content: "/* styles */" },
-  //       {
-  //         name: "components",
-  //         type: "directory",
-  //         children: [
-  //           {
-  //             name: "Button.tsx",
-  //             type: "file",
-  //             content: "// Button component",
-  //           },
-  //           { name: "Card.tsx", type: "file", content: "// Card component" },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     name: "public",
-  //     type: "directory",
-  //     children: [
-  //       { name: "index.html", type: "file", content: "<!DOCTYPE html>" },
-  //     ],
-  //   },
-  // ];
 
   return (
     <div className="h-screen flex bg-notion-darker">
